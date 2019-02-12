@@ -11,7 +11,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"./importer"
+	"github.com/johnstarich/bash-go-loader/importer"
 )
 
 var (
