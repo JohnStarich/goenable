@@ -20,7 +20,7 @@ var (
 
 func init() {
 	C.import_struct.name = C.CString(importer.Name())
-	longDoc := strings.Split(strings.TrimSpace(importer.Usage()), "\n")
+	longDoc := strings.Split(importer.Usage(), "\n")
 	C.import_struct.long_doc = cStringArray(longDoc)
 	C.import_struct.short_doc = C.CString(importer.UsageShort())
 }
