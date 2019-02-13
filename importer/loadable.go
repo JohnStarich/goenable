@@ -13,6 +13,10 @@ const (
 	functionPrefixSeparator = "-"
 )
 
+var (
+	importCache = make(map[string]bool)
+)
+
 // Name is the string users invoke to execute this loadable
 func Name() string {
 	return "import"
@@ -60,6 +64,13 @@ func run(args []string) error {
 		return err
 	}
 	defer reader.Close()
+	absPath, err := filepath.Abs(fileName)
+	if err != nil {
+		return err
+	}
+	if importCache[absPath] {
+		return nil
+	}
 	name := filepath.Base(fileName)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
 	f, err := parser.Parse(reader, name)
@@ -71,6 +82,7 @@ func run(args []string) error {
 	fmt.Fprintf(os.Stdout, extraScript)
 	printer := syntax.NewPrinter()
 	printer.Print(os.Stdout, f)
+	importCache[absPath] = true
 	return nil
 }
 
