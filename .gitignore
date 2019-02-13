@@ -1,5 +1,5 @@
-/import.so
-/import.h
+/namespace.so
+/namespace.h
 
 # Created by https://www.gitignore.io/api/c,go,vim,macos,windows,jetbrains+all
 # Edit at https://www.gitignore.io/?templates=c,go,vim,macos,windows,jetbrains+all

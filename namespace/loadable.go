@@ -1,4 +1,4 @@
-package importer
+package namespace
 
 import (
 	"fmt"
@@ -19,18 +19,19 @@ var (
 
 // Name is the string users invoke to execute this loadable
 func Name() string {
-	return "import"
+	return "namespace"
 }
 
 // UsageShort returns a short summary of usage information, usually indicating the arguments that should be provided to the loadable
 func UsageShort() string {
-	return "import SCRIPT"
+	return "namespace SCRIPT"
 }
 
 // Usage returns the full set of documentation for this loadable
 func Usage() string {
 	return strings.TrimSpace(`
-'import' is a utility to source scripts with special shell extensions.
+'namespace' is a utility to load scripts and make them namespace-friendly.
+Namespaces make it easier to create reusable modules and don't conflict in a global bash context.
 `)
 }
 

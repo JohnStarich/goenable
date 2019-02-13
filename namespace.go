@@ -3,7 +3,7 @@ package main
 /*
 #include "builtins.h"
 
-extern struct builtin import_struct;
+extern struct builtin namespace_struct;
 */
 import "C"
 
@@ -11,7 +11,7 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/johnstarich/bash-go-loader/importer"
+	"github.com/johnstarich/bash-go-loader/namespace"
 )
 
 var (
@@ -19,10 +19,10 @@ var (
 )
 
 func init() {
-	C.import_struct.name = C.CString(importer.Name())
-	longDoc := strings.Split(importer.Usage(), "\n")
-	C.import_struct.long_doc = cStringArray(longDoc)
-	C.import_struct.short_doc = C.CString(importer.UsageShort())
+	C.namespace_struct.name = C.CString(namespace.Name())
+	longDoc := strings.Split(namespace.Usage(), "\n")
+	C.namespace_struct.long_doc = cStringArray(longDoc)
+	C.namespace_struct.short_doc = C.CString(namespace.UsageShort())
 }
 
 func stringArrayWithOffset(array unsafe.Pointer, offset int) **C.char {
@@ -44,23 +44,23 @@ func cStringArray(lines []string) **C.char {
 	return (**C.char)(array)
 }
 
-//export import_builtin
-func import_builtin(list *C.WORD_LIST) C.int {
+//export namespace_builtin
+func namespace_builtin(list *C.WORD_LIST) C.int {
 	args := make([]string, 0)
 	for list != nil {
 		args = append(args, C.GoString(list.word.word))
 		list = list.next
 	}
-	return C.int(importer.Run(args))
+	return C.int(namespace.Run(args))
 }
 
-//export import_builtin_load
-func import_builtin_load(cName *C.char) C.int {
+//export namespace_builtin_load
+func namespace_builtin_load(cName *C.char) C.int {
 	name := C.GoString(cName)
-	return C.int(importer.Load(name))
+	return C.int(namespace.Load(name))
 }
 
-//export import_builtin_unload
-func import_builtin_unload() {
-	importer.Unload()
+//export namespace_builtin_unload
+func namespace_builtin_unload() {
+	namespace.Unload()
 }

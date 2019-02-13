@@ -1,5 +1,5 @@
 all:
-	go build -v -o import.so -buildmode=c-shared .
+	go build -v -o namespace.so -buildmode=c-shared .
 
 clean:
-	rm import.so import.h
+	rm namespace.so namespace.h
