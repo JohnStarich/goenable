@@ -1,16 +1,20 @@
-package namespace
+package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/johnstarich/bash-go-loader/stringutil"
+	"github.com/johnstarich/bash-go-loader/usage"
 	"mvdan.cc/sh/syntax"
 )
 
 const (
 	functionPrefixSeparator = "-"
+	outputEnvVar            = "__GOENABLE_OUTPUT"
 )
 
 var (
@@ -36,21 +40,17 @@ Namespaces make it easier to create reusable modules and don't conflict in a glo
 }
 
 // Run executes this loadable with the given arguments
-func Run(args []string) int {
+func Run(args []string) error {
 	if len(args) != 1 {
-		fmt.Fprintln(os.Stderr, "Usage: "+UsageShort())
-		return 2
+		return usage.GenericError()
 	}
-	if err := run(args); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		return 1
-	}
-	return 0
+	return run(args)
 }
 
 // Load runs any set up required by this loadable
-func Load(name string) int {
-	return 1
+func Load() error {
+	println("Loading namespace!")
+	return nil
 }
 
 // Unload runs any tear down required by this loadable
@@ -80,10 +80,11 @@ func run(args []string) error {
 	}
 
 	extraScript := mutate(f, name)
-	fmt.Fprintf(os.Stdout, extraScript)
+	buf := bytes.NewBufferString(extraScript)
 	printer := syntax.NewPrinter()
-	printer.Print(os.Stdout, f)
+	printer.Print(buf, f)
 	importCache[absPath] = true
+	os.Setenv(outputEnvVar, buf.String())
 	return nil
 }
 
@@ -101,12 +102,12 @@ func mutate(f *syntax.File, name string) string {
 	prefix := name + functionPrefixSeparator
 	allFunctionNames := ""
 	for name := range functionNames {
-		allFunctionNames += " " + singleQuote(name)
+		allFunctionNames += " " + stringutil.SingleQuote(name)
 	}
 
 	if !functionNames["usage"] {
 		functionNames["usage"] = true
-		extraScript += dedent(`
+		extraScript += stringutil.Dedent(`
 			` + prefix + `usage() {
 				echo 'Usage: ` + name + ` COMMAND' >&2
 				echo 'Available commands: '` + allFunctionNames + ` >&2
@@ -114,14 +115,14 @@ func mutate(f *syntax.File, name string) string {
 		`)
 	}
 	if !functionNames[name] {
-		extraScript += dedent(`
+		extraScript += stringutil.Dedent(`
 			` + name + `() {
 				local subCommand=$1
-				shift
 				if [[ -z "$subCommand" ]]; then
 					` + prefix + `usage
 					return 2
 				fi
+				shift
 				if ! command -v "` + prefix + `${subCommand}" >/dev/null; then
 					echo "Invalid subcommand: ${subCommand}" >&2
 					` + prefix + `usage
@@ -132,7 +133,7 @@ func mutate(f *syntax.File, name string) string {
 		`)
 	}
 	if !functionNames["complete"] {
-		extraScript += dedent(`
+		extraScript += stringutil.Dedent(`
 			` + prefix + `complete() {
 				local options=(` + allFunctionNames + `)
 				local prev=${COMP_WORDS[COMP_CWORD - 1]}
@@ -160,3 +161,5 @@ func mutate(f *syntax.File, name string) string {
 	})
 	return extraScript
 }
+
+func main() {}

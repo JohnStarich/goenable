@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "github.com/johnstarich/bash-go-loader/namespace"
+	_ "github.com/johnstarich/bash-go-loader/goenable"
 )
 
 func main() {}
