@@ -1,6 +1,6 @@
 # goenable
 
-A launching platform to write Bash builtins in Go.
+Write Bash builtins in Go.
 
 ## Quick start
 
