@@ -85,3 +85,9 @@ pow 2 2.2
 ```
 
 Check out other plugins like [hello](examples/hello/main.go) for more working [examples](examples).
+
+## Contributing
+
+All contributions are welcome!
+
+If you have suggestions for new features or run into a problem, please [submit an issue](https://github.com/JohnStarich/goenable/issues/new).
