@@ -9,13 +9,12 @@ Write Bash builtins in Go.
 ```bash
 # Create the goenable.so binary and build the example plugins
 make
-# Use Bash's 'enable' builtin to load goenable
-enable -f ./out/goenable.so goenable
-# Print usage
-help goenable
 
-goenable load ./out/hello output  # Load the hello plugin
-eval "$output"                    # Prepare functions from the hello plugin
+enable -f ./out/goenable.so goenable  # Load goenable
+help goenable                         # Print usage
+
+goenable load ./out/hello output      # Load the hello plugin
+eval "$output"                        # Prepare functions from the hello plugin
 
 hello
 # Hello, world!
