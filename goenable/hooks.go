@@ -14,7 +14,9 @@ import (
 
 const (
 	functionPrefixSeparator = "-"
-	outputEnvVar            = "__GOENABLE_OUTPUT"
+	exitSuccess             = 0
+	exitGeneralError        = 1
+	exitUsageError          = 2
 )
 
 var (
@@ -28,6 +30,9 @@ type LoadFunc = func() error
 // RunFunc is a handler for running Go plugins
 type RunFunc = func(args []string) error
 
+// UsageFunc is a handler for returning usage for Go plugins
+type UsageFunc = func() string
+
 // Name is the string users invoke to execute this loadable
 func Name() string {
 	return "goenable"
@@ -35,38 +40,58 @@ func Name() string {
 
 // UsageShort returns a short summary of usage information, usually indicating the arguments that should be provided to the loadable
 func UsageShort() string {
-	return "goenable load|run GO_PLUGIN [args ...]"
+	return "a utility to run Go plugins as shell functions"
 }
 
 // Usage returns the full set of documentation for this loadable
 func Usage() string {
 	return strings.TrimSpace(`
-'goenable' is a utility to load Go plugins as scripts
-
-goenable load GO_PLUGIN
-	Load the given plugin. Be sure to 'eval' the output of this call to begin using the new plugin.
+goenable load GO_PLUGIN ENV_VAR
+	Load the given plugin. Stores 'eval'-able output into ENV_VAR.
+	Be sure to run 'eval "${ENV_VAR}"' to begin using the new plugin.
+	Local variables are strongly recommended.
 
 goenable run GO_PLUGIN [args ...]
 	Run the given plugin, optionally with arguments. This is typically reserved for internal use.
+	i.e. Using eval on the output from 'goenable load' will add your plugin as a command, which calls 'goenable run' underneath.
 `)
+}
+
+func logError(message string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, message+"\n", args...)
 }
 
 // Run executes this loadable with the given arguments
 func Run(args []string) int {
-	if err := run(args); err != nil {
+	if p, err := run(args); err != nil {
 		switch err.(type) {
 		case usage.Error:
 			if message := err.Error(); message != "" {
-				fmt.Fprintln(os.Stderr, message)
+				logError(message)
+				return exitUsageError
 			}
-			fmt.Fprintln(os.Stderr, "Usage: "+UsageShort())
-			return 2
+			if p == nil {
+				logError("Error loading plugin")
+				return exitGeneralError
+			}
+			usageSym, err := p.Lookup("Usage")
+			if err != nil {
+				logError("Error loading plugin usage: no Usage() available")
+				return exitGeneralError
+			}
+			usage, ok := usageSym.(UsageFunc)
+			if !ok {
+				logError("Usage() for plugin is not a goenable.UsageFunc: %T", usageSym)
+				return exitGeneralError
+			}
+			logError("Usage:\n%s", usage())
+			return exitUsageError
 		default:
-			fmt.Fprintln(os.Stderr, "Error:", err)
-			return 1
+			logError("Error:", err)
+			return exitGeneralError
 		}
 	}
-	return 0
+	return exitSuccess
 }
 
 // Load runs any set up required by this loadable
@@ -78,13 +103,14 @@ func Load(name string) int {
 func Unload() {
 }
 
-func run(args []string) error {
-	if len(args) < 2 {
-		return usage.Errorf(stringutil.Dedent(`
-			Provide a command and a plugin.
-				Available commands: load, run
-		`))
+func run(args []string) (*plugin.Plugin, error) {
+	if len(args) == 0 {
+		return nil, usage.Errorf("Usage: goenable load|run [args ...]")
 	}
+	if len(args) < 2 {
+		return nil, usage.Errorf("Usage:\n%s", Usage())
+	}
+	var p *plugin.Plugin
 	command, fileName, args := args[0], args[1], args[2:]
 	name := filepath.Base(fileName)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
@@ -92,41 +118,45 @@ func run(args []string) error {
 	case "run":
 		pluginPath, loaded := importNames[name]
 		if !loaded {
-			return usage.Errorf("Plugin not loaded yet: " + name)
+			return nil, usage.Errorf("Plugin not loaded yet: " + name)
 		}
-		p := importCache[pluginPath]
+		p = importCache[pluginPath]
 		runSym, err := p.Lookup("Run")
 		if err != nil {
-			return err
+			return p, err
 		}
 		runFunc, ok := runSym.(RunFunc)
 		if !ok {
-			return fmt.Errorf("Run() for plugin is not a goenable.RunFunc: Run = %T", runSym)
+			return p, fmt.Errorf("Run() for plugin is not a goenable.RunFunc: Run = %T", runSym)
 		}
-		return runFunc(args)
+		return p, runFunc(args)
 	case "load":
+		if len(args) != 1 {
+			return nil, usage.Errorf("Usage:\n%s", Usage())
+		}
+		outputEnvVar := args[0]
 		absPath, err := filepath.Abs(fileName)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		if _, ok := importCache[absPath]; ok {
+		var loaded bool
+		if p, loaded = importCache[absPath]; loaded {
 			// plugin was loaded already, skipping...
-			return nil
+			return p, nil
 		}
-		p, err := plugin.Open(fileName)
-		if err != nil {
-			return err
+		if p, err = plugin.Open(fileName); err != nil {
+			return nil, err
 		}
 		if err := tryLoad(p); err != nil {
-			return errors.Wrap(err, "Failed to run load for plugin "+name)
+			return p, errors.Wrap(err, "Failed to run load for plugin "+name)
 		}
 		os.Setenv(outputEnvVar, makeModule(name))
 		importCache[absPath] = p
 		importNames[name] = absPath
 	default:
-		return usage.Errorf("Invalid command: " + command)
+		return nil, usage.Errorf("Invalid command: " + command)
 	}
-	return nil
+	return p, nil
 }
 
 func tryLoad(p *plugin.Plugin) error {

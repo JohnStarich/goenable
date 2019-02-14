@@ -14,7 +14,6 @@ import (
 
 const (
 	functionPrefixSeparator = "-"
-	outputEnvVar            = "__GOENABLE_OUTPUT"
 )
 
 var (
@@ -41,7 +40,7 @@ Namespaces make it easier to create reusable modules and don't conflict in a glo
 
 // Run executes this loadable with the given arguments
 func Run(args []string) error {
-	if len(args) != 1 {
+	if len(args) != 2 {
 		return usage.GenericError()
 	}
 	return run(args)
@@ -58,7 +57,7 @@ func Unload() {
 }
 
 func run(args []string) error {
-	fileName := args[0]
+	outputEnvVar, fileName := args[0], args[1]
 	parser := syntax.NewParser()
 	reader, err := os.Open(fileName)
 	if err != nil {
