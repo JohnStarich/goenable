@@ -85,4 +85,4 @@ pow 2 2.2
 # 4.59479341998814
 ```
 
-Check out other plugins like [hello](hello/main.go) for more working examples.
+Check out other plugins like [hello](examples/hello/main.go) for more working [examples](examples).
