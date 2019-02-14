@@ -1,4 +1,4 @@
-package goenable
+package main
 
 /*
 #cgo pkg-config: bash

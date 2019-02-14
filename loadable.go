@@ -1,4 +1,4 @@
-package goenable
+package main
 
 /*
 #include "builtins.h"
@@ -40,3 +40,5 @@ func goenable_builtin_load(cName *C.char) C.int {
 func goenable_builtin_unload() {
 	Unload()
 }
+
+func main() {}

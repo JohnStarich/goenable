@@ -1,4 +1,4 @@
-package goenable
+package main
 
 import (
 	"fmt"
@@ -57,10 +57,6 @@ goenable run GO_PLUGIN [args ...]
 `)
 }
 
-func logError(message string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, message+"\n", args...)
-}
-
 // Run executes this loadable with the given arguments
 func Run(args []string) int {
 	if p, err := run(args); err != nil {
@@ -101,6 +97,10 @@ func Load(name string) int {
 
 // Unload runs any tear down required by this loadable
 func Unload() {
+}
+
+func logError(message string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, message+"\n", args...)
 }
 
 func run(args []string) (*plugin.Plugin, error) {
