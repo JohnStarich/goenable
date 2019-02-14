@@ -7,8 +7,8 @@ import (
 	"plugin"
 	"strings"
 
-	"github.com/johnstarich/bash-go-loader/stringutil"
-	"github.com/johnstarich/bash-go-loader/usage"
+	"github.com/johnstarich/goenable/stringutil"
+	"github.com/johnstarich/goenable/usage"
 	"github.com/pkg/errors"
 )
 

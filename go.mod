@@ -1,4 +1,4 @@
-module github.com/johnstarich/bash-go-loader
+module github.com/johnstarich/goenable
 
 require (
 	github.com/kr/pretty v0.1.0 // indirect

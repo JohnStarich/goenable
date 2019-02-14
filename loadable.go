@@ -10,7 +10,7 @@ import "C"
 import (
 	"strings"
 
-	"github.com/johnstarich/bash-go-loader/cutils"
+	"github.com/johnstarich/goenable/cutils"
 )
 
 func init() {

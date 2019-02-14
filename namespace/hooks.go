@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/johnstarich/bash-go-loader/stringutil"
-	"github.com/johnstarich/bash-go-loader/usage"
+	"github.com/johnstarich/goenable/stringutil"
+	"github.com/johnstarich/goenable/usage"
 	"mvdan.cc/sh/syntax"
 )
 
@@ -16,21 +16,17 @@ const (
 	functionPrefixSeparator = "-"
 )
 
-var (
-	importCache = make(map[string]bool)
-)
-
-// Name is the string users invoke to execute this loadable
+// Name is the string users invoke to execute this plugin
 func Name() string {
 	return "namespace"
 }
 
-// UsageShort returns a short summary of usage information, usually indicating the arguments that should be provided to the loadable
+// UsageShort returns a short summary of usage information, usually indicating the arguments that should be provided to the plugin
 func UsageShort() string {
 	return "namespace SCRIPT"
 }
 
-// Usage returns the full set of documentation for this loadable
+// Usage returns the full set of documentation for this plugin
 func Usage() string {
 	return strings.TrimSpace(`
 'namespace' is a utility to load scripts and make them namespace-friendly.
@@ -38,7 +34,7 @@ Namespaces make it easier to create reusable modules and don't conflict in a glo
 `)
 }
 
-// Run executes this loadable with the given arguments
+// Run executes this plugin with the given arguments
 func Run(args []string) error {
 	if len(args) != 2 {
 		return usage.GenericError()
@@ -46,13 +42,12 @@ func Run(args []string) error {
 	return run(args)
 }
 
-// Load runs any set up required by this loadable
+// Load runs any set up required by this plugin
 func Load() error {
-	println("Loading namespace!")
 	return nil
 }
 
-// Unload runs any tear down required by this loadable
+// Unload runs any tear down required by this plugin
 func Unload() {
 }
 
@@ -64,13 +59,7 @@ func run(args []string) error {
 		return err
 	}
 	defer reader.Close()
-	absPath, err := filepath.Abs(fileName)
-	if err != nil {
-		return err
-	}
-	if importCache[absPath] {
-		return nil
-	}
+
 	name := filepath.Base(fileName)
 	name = strings.TrimSuffix(name, filepath.Ext(name))
 	f, err := parser.Parse(reader, name)
@@ -82,7 +71,6 @@ func run(args []string) error {
 	buf := bytes.NewBufferString(extraScript)
 	printer := syntax.NewPrinter()
 	printer.Print(buf, f)
-	importCache[absPath] = true
 	os.Setenv(outputEnvVar, buf.String())
 	return nil
 }
