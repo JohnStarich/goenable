@@ -7,8 +7,7 @@ Write Bash builtins in Go.
 ## Quick start
 
 ```bash
-# Create the goenable.so binary and build the example plugins
-make
+make  # Create the goenable.so binary and build the example plugins
 
 enable -f ./out/goenable.so goenable  # Load goenable
 help goenable                         # Print usage
