@@ -2,6 +2,8 @@
 
 Write Bash builtins in Go.
 
+`goenable` makes it easy to extend Bash with Go, without executing in a separate process. Using Bash's `enable` builtin, `goenable` is loaded into the Bash runtime and provides helpers to load [custom plugins](#write-a-plugin).
+
 ## Quick start
 
 ```bash
