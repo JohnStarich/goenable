@@ -16,30 +16,12 @@ const (
 	functionPrefixSeparator = "-"
 )
 
-// Name is the string users invoke to execute this plugin
-func Name() string {
-	return "namespace"
-}
-
-// UsageShort returns a short summary of usage information, usually indicating the arguments that should be provided to the plugin
-func UsageShort() string {
-	return "namespace SCRIPT"
-}
-
 // Usage returns the full set of documentation for this plugin
 func Usage() string {
 	return strings.TrimSpace(`
 'namespace' is a utility to load scripts and make them namespace-friendly.
 Namespaces make it easier to create reusable modules and don't conflict in a global bash context.
 `)
-}
-
-// Run executes this plugin with the given arguments
-func Run(args []string) error {
-	if len(args) != 2 {
-		return usage.GenericError()
-	}
-	return run(args)
 }
 
 // Load runs any set up required by this plugin
@@ -51,7 +33,11 @@ func Load() error {
 func Unload() {
 }
 
-func run(args []string) error {
+// Run executes this plugin with the given arguments
+func Run(args []string) error {
+	if len(args) != 2 {
+		return usage.GenericError()
+	}
 	outputEnvVar, fileName := args[0], args[1]
 	parser := syntax.NewParser()
 	reader, err := os.Open(fileName)

@@ -24,6 +24,9 @@ var (
 	importNames = make(map[string]string)
 )
 
+// UnloadFunc is a handler for loading Go plugins
+type UnloadFunc = func() error
+
 // LoadFunc is a handler for loading Go plugins
 type LoadFunc = func() error
 
@@ -97,6 +100,22 @@ func Load(name string) int {
 
 // Unload runs any tear down required by this loadable
 func Unload() {
+	for name, p := range importCache {
+		unloadSym, err := p.Lookup("Unload")
+		if err != nil {
+			logError("Unload failed: Plugin '%s' does not support Unload()", name)
+			continue
+		}
+		unload, ok := unloadSym.(UnloadFunc)
+		if !ok {
+			logError("Unload() for plugin '%s' is not a goenable.UnloadFunc: %T", name, unloadSym)
+			continue
+		}
+		err = unload()
+		if err != nil {
+			logError("Unload failed for '%s': %s", name, err.Error())
+		}
+	}
 }
 
 func logError(message string, args ...interface{}) {
