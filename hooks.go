@@ -94,8 +94,8 @@ func Run(args []string) int {
 }
 
 // Load runs any set up required by this loadable
-func Load(name string) int {
-	return 1
+func Load(name string) bool {
+	return true
 }
 
 // Unload runs any tear down required by this loadable

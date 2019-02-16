@@ -1,6 +1,8 @@
 package main
 
 /*
+#cgo pkg-config: bash
+
 #include "builtins.h"
 
 extern struct builtin goenable_struct;
@@ -33,12 +35,13 @@ func goenable_builtin(list *C.WORD_LIST) C.int {
 //export goenable_builtin_load
 func goenable_builtin_load(cName *C.char) C.int {
 	name := C.GoString(cName)
-	return C.int(Load(name))
+	if Load(name) {
+		return 1
+	}
+	return 0
 }
 
 //export goenable_builtin_unload
 func goenable_builtin_unload() {
 	Unload()
 }
-
-func main() {}
