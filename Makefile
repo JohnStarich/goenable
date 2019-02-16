@@ -10,7 +10,9 @@ dist: out
 	@cd /tmp; go get github.com/karalabe/xgo  # avoid updating go.mod files
 	@set -ex; \
 		cd out; \
-		CGO_ENABLED=1 xgo \
+		CGO_ENABLED=1 \
+		GO111MODULE=on \
+		xgo \
 			-go ${GO_VERSION} \
 			-buildmode=c-shared \
 			--targets="${TARGETS}" \
