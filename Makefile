@@ -10,13 +10,14 @@ dist: out
 	cd /tmp; go get github.com/karalabe/xgo  # avoid updating go.mod files
 	@set -ex; \
 		CGO_ENABLED=1 \
+		GO111MODULE=on \
 		xgo \
 			--buildmode=c-shared \
 			--deps="http://ftpmirror.gnu.org/bash/bash-${BASH_VERSION}.tar.gz" \
 			--depsargs="--disable-nls" \
 			--dest=out \
 			--go="${GO_VERSION}" \
-			--image="johnstarich/xgo:1.11-slim" \
+			--image="johnstarich/xgo:1.11-nano" \
 			--targets="${TARGETS}" \
 			github.com/johnstarich/goenable
 
