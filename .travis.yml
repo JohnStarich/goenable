@@ -13,7 +13,7 @@ deploy:
   provider: releases
   api_key:
     secure: Zs7PQp5FeKjfQdHll86saGNrumSGNPmAQvIzY2B/7QsLV9qw6+Wy9OEvKOpYbpr3BgP7BebS4mOq7ntZQP23v2dszKxd8tWsLFWBdLGdO9npY18ddkyPUu2Ko2Rczy4MeIr4rSjI1ArgU0Q/jYL6HMaoKp5VPW5SyOTSgeoHL7bTZnHmX6uKy6dRv0jc/O/vpOS4alFesff+AYy0u5+8+1WX4DwJKHCQqusUNzARIOtuPfHKWcRN5+C1pKNTSXpBXOgM6lbUaUDWKq8wRQlvenU+AWS9lq3RcBUm3wWUy3XRYrbGNqMWDCgnFrk7kZlDZK1hrMnR2Ju0veULyHVimJzF6PHwm5G8vjN7w3Rpb2s0atzxrivx/nB626ZiIJkn+5dOADDKLncuovWdvqkib1Gxbm9Df/FmXSmHR6wam4RNf6v4mShZn3fjV+DivVQayLbbclbyA+zoMYZgDUMKNwGj8i5fQ/icndrNSvr2WkqRqUP3424WlOesigTlT2+vJYGkkixDvhG4iUl35mFLFW1Dh8f+CqKEvFI8PP6ebKYpUbv/vAs2dqf9Fzb2W5UL/nIF275IRx7vdHRtkSAHGOtU9HOBPsP2DFB0aknD4kn7xN2J+3K+YCGUytNTR+rE8pgtG7NW1tlFOZvw+VirnAuoL2uo9X1Dc6BXm+KiILo=
-  file: "out/"
+  file: "out/*"
   skip_cleanup: true
   draft: true
   on:
