@@ -1,4 +1,4 @@
-TARGETS := linux/amd64,darwin/amd64
+TARGETS := darwin/amd64,linux/amd64
 GO_VERSION := 1.11
 BASH_VERSION := 5.0
 
@@ -10,13 +10,12 @@ dist: out
 	cd /tmp; go get github.com/karalabe/xgo  # avoid updating go.mod files
 	@set -ex; \
 		CGO_ENABLED=1 \
-		GO111MODULE=on \
 		xgo \
 			--buildmode=c-shared \
 			--deps="http://ftpmirror.gnu.org/bash/bash-${BASH_VERSION}.tar.gz" \
+			--depsargs="--disable-nls" \
 			--dest out \
 			--go "${GO_VERSION}" \
-			--image johnstarich/xgo:1.11 \
 			--targets="${TARGETS}" \
 			github.com/johnstarich/goenable
 
