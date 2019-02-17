@@ -14,8 +14,9 @@ dist: out
 			--buildmode=c-shared \
 			--deps="http://ftpmirror.gnu.org/bash/bash-${BASH_VERSION}.tar.gz" \
 			--depsargs="--disable-nls" \
-			--dest out \
-			--go "${GO_VERSION}" \
+			--dest=out \
+			--go="${GO_VERSION}" \
+			--image="johnstarich/xgo:1.11" \
 			--targets="${TARGETS}" \
 			github.com/johnstarich/goenable
 
