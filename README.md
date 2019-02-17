@@ -7,11 +7,16 @@ Write Bash builtins in Go.
 ## Quick start
 
 ```bash
-make  # Create the goenable.so binary and build the example plugins
+if [[ `uname -s` == Darwin ]]; then
+	curl -fsSL https://github.com/JohnStarich/goenable/releases/download/0.1.0/goenable-darwin-10.6-amd64.dylib > goenable.so
+else
+	curl -fsSL https://github.com/JohnStarich/goenable/releases/download/0.1.0/goenable-linux-amd64.so > goenable.so
+fi
 
-enable -f ./out/goenable.so goenable  # Load goenable
+enable -f ./goenable.so goenable      # Load goenable
 help goenable                         # Print usage
 
+make plugins                          # Build the example plugins
 goenable load ./out/hello output      # Load the hello plugin
 eval "$output"                        # Prepare functions from the hello plugin
 
