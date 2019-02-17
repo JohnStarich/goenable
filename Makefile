@@ -7,16 +7,17 @@ all: goenable plugins
 
 .PHONY: dist
 dist: out
-	@cd /tmp; go get github.com/karalabe/xgo  # avoid updating go.mod files
+	cd /tmp; go get github.com/karalabe/xgo  # avoid updating go.mod files
 	@set -ex; \
-		cd out; \
 		CGO_ENABLED=1 \
 		GO111MODULE=on \
 		xgo \
-			-go ${GO_VERSION} \
-			-buildmode=c-shared \
+			--buildmode=c-shared \
+			--deps="http://ftpmirror.gnu.org/bash/bash-${BASH_VERSION}.tar.gz" \
+			--dest out \
+			--go "${GO_VERSION}" \
+			--image johnstarich/xgo:1.11 \
 			--targets="${TARGETS}" \
-			--deps=http://ftpmirror.gnu.org/bash/bash-${BASH_VERSION}.tar.gz \
 			github.com/johnstarich/goenable
 
 .PHONY: plugins
