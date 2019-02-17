@@ -16,7 +16,7 @@ dist: out
 			--depsargs="--disable-nls" \
 			--dest=out \
 			--go="${GO_VERSION}" \
-			--image="johnstarich/xgo:1.11" \
+			--image="johnstarich/xgo:1.11-slim" \
 			--targets="${TARGETS}" \
 			github.com/johnstarich/goenable
 
