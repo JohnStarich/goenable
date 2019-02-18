@@ -2,13 +2,13 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/johnstarich/goenable/stringutil"
-	"github.com/johnstarich/goenable/usage"
 	"mvdan.cc/sh/syntax"
 )
 
@@ -34,15 +34,15 @@ func Unload() {
 }
 
 // Run executes this plugin with the given arguments
-func Run(args []string) error {
+func Run(args []string) (int, error) {
 	if len(args) != 2 {
-		return usage.GenericError()
+		return 2, errors.New(Usage())
 	}
 	outputEnvVar, fileName := args[0], args[1]
 	parser := syntax.NewParser()
 	reader, err := os.Open(fileName)
 	if err != nil {
-		return err
+		return 1, err
 	}
 	defer reader.Close()
 
@@ -50,7 +50,7 @@ func Run(args []string) error {
 	name = strings.TrimSuffix(name, filepath.Ext(name))
 	f, err := parser.Parse(reader, name)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
 	extraScript := mutate(f, name)
@@ -58,7 +58,7 @@ func Run(args []string) error {
 	printer := syntax.NewPrinter()
 	printer.Print(buf, f)
 	os.Setenv(outputEnvVar, buf.String())
-	return nil
+	return 0, nil
 }
 
 func mutate(f *syntax.File, name string) string {

@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
-
-	"github.com/johnstarich/goenable/usage"
 )
 
 // Usage returns the full set of documentation for this plugin
@@ -25,12 +24,13 @@ func Unload() {
 }
 
 // Run executes this plugin with the given arguments
-func Run(args []string) error {
+func Run(args []string) int {
 	if len(args) != 0 {
-		return usage.GenericError()
+		fmt.Fprintf(os.Stderr, Usage())
+		return 2
 	}
 	fmt.Println("Hello, world!")
-	return nil
+	return 0
 }
 
 func main() {}

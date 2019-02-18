@@ -7,8 +7,6 @@ import (
 	"plugin"
 	"strings"
 
-	"github.com/johnstarich/goenable/stringutil"
-	"github.com/johnstarich/goenable/usage"
 	"github.com/pkg/errors"
 )
 
@@ -31,7 +29,14 @@ type UnloadFunc = func() error
 type LoadFunc = func() error
 
 // RunFunc is a handler for running Go plugins
-type RunFunc = func(args []string) error
+type RunFunc = func(args []string) (returnCode int)
+
+// RunRCErrFunc is a handler for running Go plugins
+type RunRCErrFunc = func(args []string) (returnCode int, err error)
+
+// RunErrFunc is a handler for running Go plugins
+// Returning a non-nil error has a return code of 1
+type RunErrFunc = func(args []string) error
 
 // UsageFunc is a handler for returning usage for Go plugins
 type UsageFunc = func() string
@@ -61,36 +66,40 @@ goenable run GO_PLUGIN [args ...]
 }
 
 // Run executes this loadable with the given arguments
-func Run(args []string) int {
-	if p, err := run(args); err != nil {
-		switch err.(type) {
-		case usage.Error:
+func Run(args []string) (returnCode int) {
+	p, returnCode, err := run(args)
+	if err != nil {
+		if returnCode == exitSuccess {
+			// ensure we don't accidentally exit with success if an error occurred
+			returnCode = exitGeneralError
+		}
+		switch returnCode {
+		case exitUsageError:
 			if message := err.Error(); message != "" {
 				logError(message)
-				return exitUsageError
+				return
 			}
 			if p == nil {
 				logError("Error loading plugin")
-				return exitGeneralError
+				return
 			}
 			usageSym, err := p.Lookup("Usage")
 			if err != nil {
 				logError("Error loading plugin usage: no Usage() available")
-				return exitGeneralError
+				return
 			}
 			usage, ok := usageSym.(UsageFunc)
 			if !ok {
 				logError("Usage() for plugin is not a goenable.UsageFunc: %T", usageSym)
-				return exitGeneralError
+				return
 			}
 			logError("Usage:\n%s", usage())
 			return exitUsageError
 		default:
-			logError("Error:", err)
-			return exitGeneralError
+			logError("Error: %s", err.Error())
 		}
 	}
-	return exitSuccess
+	return
 }
 
 // Load runs any set up required by this loadable
@@ -122,12 +131,12 @@ func logError(message string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, message+"\n", args...)
 }
 
-func run(args []string) (*plugin.Plugin, error) {
+func run(args []string) (*plugin.Plugin, int, error) {
 	if len(args) == 0 {
-		return nil, usage.Errorf("Usage: goenable load|run [args ...]")
+		return nil, exitUsageError, fmt.Errorf("Usage: goenable load|run [args ...]")
 	}
 	if len(args) < 2 {
-		return nil, usage.Errorf("Usage:\n%s", Usage())
+		return nil, exitUsageError, fmt.Errorf("Usage:\n%s", Usage())
 	}
 	var p *plugin.Plugin
 	command, fileName, args := args[0], args[1], args[2:]
@@ -137,45 +146,56 @@ func run(args []string) (*plugin.Plugin, error) {
 	case "run":
 		pluginPath, loaded := importNames[name]
 		if !loaded {
-			return nil, usage.Errorf("Plugin not loaded yet: " + name)
+			return nil, exitUsageError, fmt.Errorf("Plugin not loaded yet: " + name)
 		}
 		p = importCache[pluginPath]
 		runSym, err := p.Lookup("Run")
 		if err != nil {
-			return p, err
+			return p, exitGeneralError, err
 		}
-		runFunc, ok := runSym.(RunFunc)
-		if !ok {
-			return p, fmt.Errorf("Run() for plugin is not a goenable.RunFunc: Run = %T", runSym)
+		switch runFunc := runSym.(type) {
+		case RunFunc:
+			return p, runFunc(args), nil
+		case RunRCErrFunc:
+			returnCode, err := runFunc(args)
+			return p, returnCode, err
+		case RunErrFunc:
+			returnCode := exitSuccess
+			err := runFunc(args)
+			if err != nil {
+				returnCode = exitGeneralError
+			}
+			return p, returnCode, err
+		default:
+			return p, exitGeneralError, fmt.Errorf("Run() for plugin is not a goenable.Run*Func: Run = %T", runSym)
 		}
-		return p, runFunc(args)
 	case "load":
 		if len(args) != 1 {
-			return nil, usage.Errorf("Usage:\n%s", Usage())
+			return nil, exitUsageError, fmt.Errorf("Usage:\n%s", Usage())
 		}
 		outputEnvVar := args[0]
 		absPath, err := filepath.Abs(fileName)
 		if err != nil {
-			return nil, err
+			return nil, exitUsageError, err
 		}
 		var loaded bool
 		if p, loaded = importCache[absPath]; loaded {
 			// plugin was loaded already, skipping...
-			return p, nil
+			return p, exitSuccess, nil
 		}
 		if p, err = plugin.Open(fileName); err != nil {
-			return nil, err
+			return nil, exitGeneralError, err
 		}
 		if err := tryLoad(p); err != nil {
-			return p, errors.Wrap(err, "Failed to run load for plugin "+name)
+			return p, exitGeneralError, errors.Wrap(err, "Failed to run load for plugin "+name)
 		}
 		os.Setenv(outputEnvVar, makeModule(name))
 		importCache[absPath] = p
 		importNames[name] = absPath
 	default:
-		return nil, usage.Errorf("Invalid command: " + command)
+		return nil, exitUsageError, fmt.Errorf("Invalid command: " + command)
 	}
-	return p, nil
+	return p, exitSuccess, nil
 }
 
 func tryLoad(p *plugin.Plugin) error {
@@ -191,9 +211,9 @@ func tryLoad(p *plugin.Plugin) error {
 }
 
 func makeModule(name string) string {
-	return stringutil.Dedent(`
-		` + name + `() {
-			goenable run ` + name + ` "$@"
-		}
-	`)
+	return `
+` + name + `() {
+	goenable run ` + name + ` "$@"
+}
+`
 }
