@@ -1,5 +1,5 @@
 TARGETS := darwin/amd64,linux/amd64
-GO_VERSION := 1.11.x
+GO_VERSION := 1.11.5
 BASH_VERSION := 5.0
 # Set default remote and branch, but allow env var overrides:
 #   DIST_REMOTE, DIST_BRANCH
