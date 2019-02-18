@@ -29,6 +29,7 @@ dist: out
 			--image="johnstarich/xgo:1.11-nano" \
 			--targets="${TARGETS}" \
 			${DIST_PACKAGE}
+	go run ./cmd/rename_binaries.go ./out
 
 .PHONY: plugins
 plugins: out
