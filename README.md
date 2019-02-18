@@ -14,7 +14,9 @@ enable -f ./goenable.so goenable  # Load goenable
 help goenable                     # Print usage
 ```
 
-If you download this repo, you can also build the example plugins and try them out:
+If you download this repo, you can also build the example plugins and try them out.
+You'll need Go 1.11+ installed, so if you're using macOS, then you can run `brew install go@1.11`.
+
 ```bash
 make plugins                      # Build the example plugins
 goenable load ./out/hello output  # Load the hello plugin
