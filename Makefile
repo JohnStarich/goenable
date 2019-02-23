@@ -4,6 +4,7 @@ export
 TARGETS := darwin/amd64,linux/amd64
 GO_VERSION := 1.11.5
 BASH_VERSION := 5.0
+SHELL := /usr/bin/env bash
 
 .PHONY: all
 all: goenable plugins
@@ -20,7 +21,11 @@ dist: out
 		--image="johnstarich/xgo:1.11-nano" \
 		--targets="${TARGETS}" \
 		.
-	mv out/github.com/johnstarich/* out/ && rm -rf out/github.com
+	set -e; \
+		if [[ -d out/github.com ]]; then \
+			mv -fv out/github.com/johnstarich/* out/; \
+			rm -rf out/github.com; \
+		fi
 	go run ./cmd/rename_binaries.go ./out
 
 .PHONY: plugins
