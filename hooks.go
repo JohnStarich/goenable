@@ -7,7 +7,6 @@ import (
 	"plugin"
 	"strings"
 
-	"github.com/johnstarich/goenable/env"
 	"github.com/pkg/errors"
 )
 
@@ -21,12 +20,6 @@ const (
 var (
 	importCache = make(map[string]*plugin.Plugin)
 	importNames = make(map[string]string)
-
-	helpers = map[string]interface{}{
-		"Getenv":   env.Getenv,
-		"Setenv":   env.Setenv,
-		"Unsetenv": env.Unsetenv,
-	}
 )
 
 // UnloadFunc is a handler for loading Go plugins
@@ -34,9 +27,6 @@ type UnloadFunc = func() error
 
 // LoadFunc is a handler for loading Go plugins
 type LoadFunc = func() error
-
-// LoadHelpersFunc is a handler for loading Go plugins
-type LoadHelpersFunc = func(helpers func(string) (interface{}, bool)) error
 
 // RunFunc is a handler for running Go plugins
 type RunFunc = func(args []string) (returnCode int)
@@ -213,17 +203,11 @@ func tryLoad(p *plugin.Plugin) error {
 	if err != nil {
 		return err
 	}
-	switch load := loadSym.(type) {
-	case LoadFunc:
-		return load()
-	case LoadHelpersFunc:
-		return load(func(helperName string) (interface{}, bool) {
-			i, ok := helpers[helperName]
-			return i, ok
-		})
-	default:
+	load, ok := loadSym.(LoadFunc)
+	if !ok {
 		return fmt.Errorf("Load() for plugin is not a goenable.LoadFunc: Load = %T", loadSym)
 	}
+	return load()
 }
 
 func makeModule(name string) string {
