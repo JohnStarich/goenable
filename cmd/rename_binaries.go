@@ -11,7 +11,7 @@ import (
 
 var (
 	versionRegex = regexp.MustCompile(`\d+(\.\d+)+`)
-	kernelRegex  = regexp.MustCompile(`goenable-([^-]+)`)
+	kernelRegex  = regexp.MustCompile(`^([a-z]+)-([^-]+)`)
 	// make suffixes consistent between download URLs, even if it is technically incorrect for that OS
 	suffixRegex = regexp.MustCompile(`\.dylib`)
 )
@@ -29,12 +29,25 @@ func main() {
 		panic(err)
 	}
 
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	workingDirectory, err = filepath.Abs(workingDirectory)
+	if err != nil {
+		panic(err)
+	}
+	binaryName := filepath.Base(workingDirectory)
 	for _, f := range files {
 		fileName := f.Name()
 		newFileName := kernelRegex.ReplaceAllStringFunc(fileName, func(s string) string {
-			s = strings.TrimPrefix(s, "goenable-")
+			if !strings.HasPrefix(s, binaryName+"-") {
+				// only rename the output binaries
+				return s
+			}
+			s = strings.TrimPrefix(s, binaryName+"-")
 			s = strings.Title(s)
-			return "goenable-" + s
+			return binaryName + "-" + s
 		})
 		newFileName = versionRegex.ReplaceAllLiteralString(newFileName, "")
 		newFileName = strings.Replace(newFileName, "--", "-", -1)
