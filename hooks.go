@@ -133,7 +133,12 @@ func logError(message string, args ...interface{}) {
 
 func run(args []string) (*plugin.Plugin, int, error) {
 	if len(args) == 0 {
-		return nil, exitUsageError, fmt.Errorf("Usage: goenable load|run [args ...]")
+		return nil, exitUsageError, fmt.Errorf("Usage: goenable help|load|run [args ...]")
+	}
+	if args[0] == "help" {
+		fmt.Fprintf(os.Stderr, "%s: %s\n", Name(), UsageShort())
+		fmt.Fprintln(os.Stderr, Usage())
+		return nil, exitSuccess, nil
 	}
 	if len(args) < 2 {
 		return nil, exitUsageError, fmt.Errorf("Usage:\n%s", Usage())

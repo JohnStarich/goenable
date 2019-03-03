@@ -10,12 +10,22 @@ script:
   - make dist
 
 deploy:
-  provider: releases
-  api_key:
-    secure: S60LrUYZwWb+Pb45JAPCOzqWkJZsE9uKirsvKHaDIDuLUcAdnXk7jkSQaSA8vbiVMHlO09o5HafeTukvvoUs4k7JWIkyCB3EZ+6StGyt6RcQ/5MRPA9vznLhfYLIjjBuE/gjjfmAC3H0MD7zoEmqFb+J7MWnJ9IVxxY0w66T9d1YHyt0ufw3PEYotaV1vKcPYjKc+eCHAeT6rb76IsvnRAqGC55q086z0ld3h3BGmIxdGut0ZQKenMCZh3KVeWvDHRvIXivyS7tZcUi+WRT23OJ+q9SagG8PEtSzgsFXtdkoZDJ/1KDz6YnOuCLf5c1ZtYPwwxm1DUu/DGhrr4HUU6dsdwbUIMMnIKEH8lWJWJCZ9jdifcl8eEd2/SJ8pgDEYIweBCTqDTbZ9ORTKmik59ZLPATDimtl7PlReQDUlWUW+/ckrPFxvpXPmFOJd0nJndYVvrnFsJdsewAkTxNX63LMEbVGKeDs/QpJNr57vyT4bQJalzbOsw6TKhY8gw1ww1ov2aFAFOhfuxi1siaU5XStCXssE65acNkgbza82C/BSbumHUZLd4bCnlAkNLD6nHTkLKNGuX5bpUP5xTu6GoCG7BTJEo/DQMXH1uVD/Nffyl5tS+6ATySB3l03UZAJEe2ygs9bPwPpzY/wx4rbM+qVG6E+mRcQ/AXuZJ3ZqHc=
-  file: "out/*"
-  file_glob: true
-  skip_cleanup: true
-  on:
-    repo: JohnStarich/goenable
-    tags: true
+  - provider: releases
+    api_key:
+      secure: S60LrUYZwWb+Pb45JAPCOzqWkJZsE9uKirsvKHaDIDuLUcAdnXk7jkSQaSA8vbiVMHlO09o5HafeTukvvoUs4k7JWIkyCB3EZ+6StGyt6RcQ/5MRPA9vznLhfYLIjjBuE/gjjfmAC3H0MD7zoEmqFb+J7MWnJ9IVxxY0w66T9d1YHyt0ufw3PEYotaV1vKcPYjKc+eCHAeT6rb76IsvnRAqGC55q086z0ld3h3BGmIxdGut0ZQKenMCZh3KVeWvDHRvIXivyS7tZcUi+WRT23OJ+q9SagG8PEtSzgsFXtdkoZDJ/1KDz6YnOuCLf5c1ZtYPwwxm1DUu/DGhrr4HUU6dsdwbUIMMnIKEH8lWJWJCZ9jdifcl8eEd2/SJ8pgDEYIweBCTqDTbZ9ORTKmik59ZLPATDimtl7PlReQDUlWUW+/ckrPFxvpXPmFOJd0nJndYVvrnFsJdsewAkTxNX63LMEbVGKeDs/QpJNr57vyT4bQJalzbOsw6TKhY8gw1ww1ov2aFAFOhfuxi1siaU5XStCXssE65acNkgbza82C/BSbumHUZLd4bCnlAkNLD6nHTkLKNGuX5bpUP5xTu6GoCG7BTJEo/DQMXH1uVD/Nffyl5tS+6ATySB3l03UZAJEe2ygs9bPwPpzY/wx4rbM+qVG6E+mRcQ/AXuZJ3ZqHc=
+    file: "out/*"
+    file_glob: true
+    skip_cleanup: true
+    on:
+      repo: JohnStarich/goenable
+      tags: true
+  - provider: releases
+    api_key:
+      secure: S60LrUYZwWb+Pb45JAPCOzqWkJZsE9uKirsvKHaDIDuLUcAdnXk7jkSQaSA8vbiVMHlO09o5HafeTukvvoUs4k7JWIkyCB3EZ+6StGyt6RcQ/5MRPA9vznLhfYLIjjBuE/gjjfmAC3H0MD7zoEmqFb+J7MWnJ9IVxxY0w66T9d1YHyt0ufw3PEYotaV1vKcPYjKc+eCHAeT6rb76IsvnRAqGC55q086z0ld3h3BGmIxdGut0ZQKenMCZh3KVeWvDHRvIXivyS7tZcUi+WRT23OJ+q9SagG8PEtSzgsFXtdkoZDJ/1KDz6YnOuCLf5c1ZtYPwwxm1DUu/DGhrr4HUU6dsdwbUIMMnIKEH8lWJWJCZ9jdifcl8eEd2/SJ8pgDEYIweBCTqDTbZ9ORTKmik59ZLPATDimtl7PlReQDUlWUW+/ckrPFxvpXPmFOJd0nJndYVvrnFsJdsewAkTxNX63LMEbVGKeDs/QpJNr57vyT4bQJalzbOsw6TKhY8gw1ww1ov2aFAFOhfuxi1siaU5XStCXssE65acNkgbza82C/BSbumHUZLd4bCnlAkNLD6nHTkLKNGuX5bpUP5xTu6GoCG7BTJEo/DQMXH1uVD/Nffyl5tS+6ATySB3l03UZAJEe2ygs9bPwPpzY/wx4rbM+qVG6E+mRcQ/AXuZJ3ZqHc=
+    file: "out/*"
+    file_glob: true
+    skip_cleanup: true
+    prerelease: true
+    on:
+      repo: JohnStarich/goenable
+      branch: master

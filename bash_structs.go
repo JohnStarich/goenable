@@ -7,12 +7,16 @@ package main
 
 extern int goenable_builtin(WORD_LIST *list);
 
+char *empty_doc[] = {
+	NULL
+};
+
 struct builtin goenable_struct = {
-  NULL,             // builtin name
+  "goenable",       // builtin name
   goenable_builtin, // function implementing the builtin
   BUILTIN_ENABLED,  // initial flags for builtin
-  NULL,             // array of long documentation strings.
-  NULL,             // usage synopsis; becomes short_doc
+  empty_doc,        // array of long documentation strings.
+  "Run 'goenable help' for help.",  // usage synopsis; becomes short_doc. Note: This constant is replaced at load time on Bash 4.4+.
   0                 // reserved for internal use
 };
 */
