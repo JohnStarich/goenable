@@ -8,7 +8,7 @@ Write Bash builtins in Go.
 
 Download and set up the `goenable` binary:
 ```bash
-curl -fsSL "https://github.com/JohnStarich/goenable/releases/download/0.2.0/goenable-$(uname -s)-$(uname -m).so" > goenable.so
+curl -fsSL "https://github.com/JohnStarich/goenable/releases/download/v0.2.2/goenable-$(uname -s)-$(uname -m).so" > goenable.so
 
 enable -f ./goenable.so goenable  # Load goenable
 help goenable                     # Print usage
